@@ -3,16 +3,16 @@ package com.example.demoapi.ServerResponseModels;
 import java.util.ArrayList;
 
 public class LoginResponseModel {
-    private String response;
+    private int response;
     private String message;
     private String jsontoken;
     private InfoModel Info;
 
-    public String getResponse() {
+    public int getResponse() {
         return response;
     }
 
-    public void setResponse(String response) {
+    public void setResponse(int response) {
         this.response = response;
     }
 

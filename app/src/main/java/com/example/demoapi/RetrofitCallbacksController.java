@@ -1,4 +1,5 @@
 package com.example.demoapi;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -20,11 +21,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 public class RetrofitCallbacksController {
-    private Context context;
     @SuppressLint("StaticFieldLeak")
     private static RetrofitCallbacksController retrofitCallbacks;
     private static Retrofit retrofit = null;
+    private Context context;
 
     private static Retrofit getClient() {
         if (retrofit == null) {
@@ -50,7 +52,7 @@ public class RetrofitCallbacksController {
     public boolean checkNetwork() {
         boolean wifiAvailable = false;
         boolean mobileAvailable = false;
-        ConnectivityManager conManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager conManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo[] networkInfo = conManager.getAllNetworkInfo();
         for (NetworkInfo netInfo : networkInfo) {
             if (netInfo.getTypeName().equalsIgnoreCase("WIFI"))
@@ -62,6 +64,7 @@ public class RetrofitCallbacksController {
         }
         return wifiAvailable || mobileAvailable;
     }
+
     public void ApiCallbacksForAllPosts(Context context, String NotifyMsg, String EndUrl, JsonObject jsonobj, String accessToken) {
         this.context = context;
         ApiCollection apiCollection = getClient().create(ApiCollection.class);
@@ -76,7 +79,7 @@ public class RetrofitCallbacksController {
                     try {
                         bodyString = new String(response.body().bytes());
                         Log.e("NotifyMsg", " " + bodyString);
-                        EventBus.getDefault().post(new MessageEvent(bodyString,NotifyMsg));
+                        EventBus.getDefault().post(new MessageEvent(bodyString, NotifyMsg));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -94,14 +97,12 @@ public class RetrofitCallbacksController {
     }
 
 
-
-
     public static class MessageEvent {
         public String message, body;
 
-        public MessageEvent(String body,String msg) {
+        public MessageEvent(String body, String msg) {
             this.body = body;
-            this.message=msg;
+            this.message = msg;
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.demoapi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,11 +29,12 @@ public class LoginActivity extends AppCompatActivity {
     EditText userid, password;
     Button btnLogin;
     ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        progressDialog=new ProgressDialog(LoginActivity.this);
+        progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setTitle("Loading....");
         actions();
         RetrofitCallbacksController.getInstace().fillcontext(LoginActivity.this);
@@ -50,31 +52,35 @@ public class LoginActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(LoginActivity.this);
     }
 
-@Subscribe(threadMode=ThreadMode.MAIN)
-public void onEventMainThread(RetrofitCallbacksController.MessageEvent messageEvent){
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(RetrofitCallbacksController.MessageEvent messageEvent) {
         progressDialog.dismiss();
-    Log.e("response","call"+messageEvent.body);
-    if(messageEvent.message.contains("loginApi")) {
-        if (messageEvent.body != null) {
-            try {
-                JSONObject jObj = new JSONObject(messageEvent.body);
-            } catch (JSONException e) {
-                Log.e("JSON Parser", "Error parsing data " + e.toString());
+        Log.e("response", "call" + messageEvent.body);
+        if (messageEvent.message.contains("loginApi")) {
+            if (messageEvent.body != null) {
+                try {
+                    JSONObject jObj = new JSONObject(messageEvent.body);
+                } catch (JSONException e) {
+                    Log.e("JSON Parser", "Error parsing data " + e.toString());
+                }
+                Gson gson = new Gson();
+                LoginResponseModel loginResponseModel = gson.fromJson(messageEvent.body, LoginResponseModel.class);
+                if (loginResponseModel.getResponse()==3) {
+                    Log.e("loginrespoise", "call" + loginResponseModel.getResponse());
+                    Toast.makeText(getApplicationContext(), loginResponseModel.getMessage(), Toast.LENGTH_SHORT).show();
+                    action();
+                } else {
+                    Toast.makeText(getApplicationContext(), loginResponseModel.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
-            Gson gson = new Gson();
-            LoginResponseModel loginResponseModel = gson.fromJson(messageEvent.body, LoginResponseModel.class);
-            Log.e("loginrespoise", "call" + loginResponseModel.getResponse());
-            if(loginResponseModel.getResponse().equals(3)){
-                Toast.makeText(getApplicationContext(),loginResponseModel.getMessage(),Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(getApplicationContext(),loginResponseModel.getMessage(),Toast.LENGTH_SHORT).show();
-            }
+        } else {
         }
-    }else{
-
     }
-}
-
+    public void action() {
+        Intent i = new Intent(this, HomeActivity.class);
+        startActivity(i);
+        finish();
+    }
 
     private void actions() {
 
@@ -85,13 +91,13 @@ public void onEventMainThread(RetrofitCallbacksController.MessageEvent messageEv
             @Override
             public void onClick(View view) {
 
-                if (userid.getText().toString().isEmpty()|| password.getText().toString().isEmpty()) {
+                if (userid.getText().toString().isEmpty() || password.getText().toString().isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Username or Password Required", Toast.LENGTH_LONG).show();
                 } else {
-                    if(RetrofitCallbacksController.getInstace().checkNetwork()){
+                    if (RetrofitCallbacksController.getInstace().checkNetwork()) {
                         progressDialog.show();
-                          loadLoginApiParams();
-                    }else {
+                        loadLoginApiParams();
+                    } else {
                         Toast.makeText(LoginActivity.this, "No internet connection.", Toast.LENGTH_LONG).show();
                     }
 
@@ -100,7 +106,8 @@ public void onEventMainThread(RetrofitCallbacksController.MessageEvent messageEv
             }
         });
     }
-    public void loadLoginApiParams(){
+
+    public void loadLoginApiParams() {
         JsonObject CheckUserObj = new JsonObject();
         JSONObject jsonObject = new JSONObject();
         try {
@@ -112,6 +119,6 @@ public void onEventMainThread(RetrofitCallbacksController.MessageEvent messageEv
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        RetrofitCallbacksController.getInstace().ApiCallbacksForAllPosts(LoginActivity.this,"loginApi","seller/Sellerlogin",CheckUserObj,"");
+        RetrofitCallbacksController.getInstace().ApiCallbacksForAllPosts(LoginActivity.this, "loginApi", "seller/Sellerlogin", CheckUserObj, "");
     }
 }
